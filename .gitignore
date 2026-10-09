@@ -1,0 +1,196 @@
+const INICIO = new Date(2026, 9, 10);
+const BASE = 100;
+const FRASES = [
+  { t: "No son las cosas las que nos perturban, sino la opinión que tenemos de ellas.", a: "Epicteto, Manual" },
+  { t: "Mientras aplazamos, la vida pasa.", a: "Séneca, Epístolas a Lucilio" },
+  { t: "No es que tengamos poco tiempo, sino que perdemos mucho.", a: "Séneca, De la brevedad de la vida" },
+  { t: "Lo que no es bueno para la colmena no es bueno para la abeja.", a: "Marco Aurelio, Meditaciones" },
+  { t: "Somos lo que hacemos repetidamente. La excelencia no es un acto, sino un hábito.", a: "Atribuida a Aristóteles (la forma exacta es una paráfrasis de Will Durant)" },
+  { t: "Cuando te levantes por la mañana, piensa en el privilegio que supone estar vivo.", a: "Marco Aurelio, Meditaciones (paráfrasis)" }
+];
+const KEY = "reto100-v1";
+const installBtn = document.getElementById("install-btn");
+let deferredPrompt = null;
+let estado = {};
+
+try {
+  estado = JSON.parse(localStorage.getItem(KEY) || "{}");
+} catch (error) {
+  estado = {};
+}
+
+let marcas = estado.marcas || {};
+let seleccion = null;
+
+function iso(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function sumar(date, amount) {
+  const next = new Date(date);
+  next.setDate(next.getDate() + amount);
+  return next;
+}
+
+function hoyDate() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+function guardar() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify({ marcas }));
+  } catch (error) {
+    console.warn("No se pudo guardar el estado local.", error);
+  }
+}
+
+function caidas() {
+  return Object.values(marcas).filter((m) => m && m.s === "bad").length;
+}
+
+function total() {
+  return BASE + caidas();
+}
+
+function abrirPanel(date, marca) {
+  document.getElementById("panel").hidden = false;
+  document.getElementById("pan-fecha").textContent = `Día ${(Math.round((date - INICIO) / 86400000) + 1)} · ${date.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" })}`;
+  document.getElementById("bloque-caida").hidden = !(marca && marca.s === "bad");
+  document.getElementById("disp").value = (marca && marca.t) || "";
+  document.getElementById("cambio").value = (marca && marca.n) || "";
+  document.getElementById("panel").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function marcar(tipo) {
+  if (!seleccion) return;
+
+  if (tipo === "ok") {
+    marcas[seleccion] = { s: "ok" };
+  }
+
+  if (tipo === "bad") {
+    marcas[seleccion] = { s: "bad", t: "", n: "" };
+  }
+
+  guardar();
+  render();
+  abrirPanel(new Date(`${seleccion}T00:00:00`), marcas[seleccion]);
+}
+
+function render() {
+  const hoy = hoyDate();
+  const totalDias = total();
+  const dias = [];
+
+  for (let i = 0; i < totalDias; i += 1) {
+    dias.push(sumar(INICIO, i));
+  }
+
+  const idxHoy = Math.max(0, Math.min(totalDias - 1, Math.round((hoy - INICIO) / 86400000)));
+
+  let limpios = 0;
+  let racha = 0;
+
+  for (let i = 0; i < totalDias; i += 1) {
+    const marca = marcas[iso(dias[i])];
+    if (marca && marca.s === "ok") limpios += 1;
+  }
+
+  for (let i = idxHoy; i >= 0; i -= 1) {
+    const marca = marcas[iso(dias[i])];
+    if (marca && marca.s === "ok") {
+      racha += 1;
+    } else if (marca && marca.s === "bad") {
+      break;
+    } else if (i === idxHoy) {
+      continue;
+    } else {
+      break;
+    }
+  }
+
+  document.getElementById("st-dia").textContent = String(idxHoy + 1);
+  document.getElementById("st-racha").textContent = String(racha);
+  document.getElementById("st-total").textContent = String(totalDias);
+
+  const pct = Math.round((limpios / totalDias) * 100);
+  document.getElementById("barra").style.width = `${pct}%`;
+  document.getElementById("prog").textContent = `${limpios} días limpios de ${totalDias} · ${pct}%`;
+
+  const frase = FRASES[idxHoy % FRASES.length];
+  document.getElementById("frase").textContent = `« ${frase.t} »`;
+  document.getElementById("autor").textContent = `— ${frase.a}`;
+
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+
+  dias.forEach((dia, index) => {
+    const key = iso(dia);
+    const marca = marcas[key];
+    const boton = document.createElement("button");
+    boton.className = "d";
+    if (index >= BASE) boton.classList.add("extra");
+    if (marca && marca.s === "ok") boton.classList.add("ok");
+    if (marca && marca.s === "bad") boton.classList.add("bad");
+    if (index === idxHoy) boton.classList.add("hoy");
+    if (dia > hoy) {
+      boton.classList.add("fut");
+      boton.disabled = true;
+    }
+    boton.textContent = String(index + 1);
+    boton.title = dia.toLocaleDateString("es-ES");
+    boton.addEventListener("click", () => {
+      seleccion = key;
+      abrirPanel(dia, marca);
+    });
+    grid.appendChild(boton);
+  });
+}
+
+function setInstallButtonVisibility() {
+  if (installBtn) {
+    installBtn.hidden = !deferredPrompt;
+  }
+}
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredPrompt = event;
+  setInstallButtonVisibility();
+});
+
+if (installBtn) {
+  installBtn.addEventListener("click", async () => {
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    setInstallButtonVisibility();
+  });
+}
+
+document.getElementById("btn-ok").addEventListener("click", () => marcar("ok"));
+document.getElementById("btn-bad").addEventListener("click", () => marcar("bad"));
+document.getElementById("btn-borrar").addEventListener("click", () => {
+  if (!seleccion) return;
+  delete marcas[seleccion];
+  guardar();
+  render();
+  document.getElementById("panel").hidden = true;
+});
+document.getElementById("btn-guardar").addEventListener("click", () => {
+  if (!seleccion || !marcas[seleccion]) return;
+  marcas[seleccion].t = document.getElementById("disp").value;
+  marcas[seleccion].n = document.getElementById("cambio").value.trim();
+  guardar();
+  render();
+  document.getElementById("panel").hidden = true;
+});
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").catch(() => {});
+}
+
+render();
