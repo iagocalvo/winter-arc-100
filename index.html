@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070b10">
+<title>Winter Arc · 100 días</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+:root{
+  --bg:#070b10;--panel:#0d141c;--panel2:#111b25;--line:#1d2d3d;
+  --fg:#e8f4fb;--muted:#6b8699;--ice:#7fd3ff;--ice2:#3aa6e0;
+  --blood:#b3263d;--blood2:#6e1422;--hoy:#ffffff;
+  color-scheme:dark
+}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;color:var(--fg);
+  font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(900px 500px at 50% -10%, rgba(127,211,255,.18), transparent 60%),
+    radial-gradient(600px 400px at 100% 110%, rgba(58,166,224,.10), transparent 60%),
+    var(--bg);
+  padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px);
+}
+main{max-width:660px;margin:0 auto;padding:18px 0 48px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.brand{font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;color:var(--ice)}
+.snow{font-size:.78rem;color:var(--muted);letter-spacing:.08em}
+h1{font-size:2.1rem;line-height:1;margin:8px 0 6px;font-weight:800;letter-spacing:-.02em;text-transform:uppercase}
+h1 span{background:linear-gradient(90deg,#ffffff,var(--ice));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);font-size:.9rem;margin:0 0 18px;line-height:1.5}
+.card{
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;
+  box-shadow:0 0 0 1px rgba(127,211,255,.03) inset, 0 12px 40px rgba(0,0,0,.45)
+}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center}
+.stats b{display:block;font-size:1.8rem;font-weight:800;color:var(--fg);font-variant-numeric:tabular-nums}
+.stats span{font-size:.68rem;text-transform:uppercase;letter-spacing:.16em;color:var(--muted)}
+.bar{height:8px;background:#0a1118;border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-top:14px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ice2),var(--ice));box-shadow:0 0 14px rgba(127,211,255,.6);transition:width .6s ease}
+.leyenda{font-size:.78rem;color:var(--muted);margin:10px 0 0;line-height:1.5}
+.frase{font-size:1.1rem;font-style:italic;line-height:1.55;margin:0;color:var(--fg)}
+.autor{color:var(--ice);font-size:.78rem;letter-spacing:.06em;margin-top:10px;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+.d{
+  aspect-ratio:1;border-radius:10px;border:1px solid var(--line);
+  background:#09101620;background:rgba(9,16,22,.7);color:#4d6578;
+  font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;padding:0;transition:transform .12s ease
+}
+.d:active{transform:scale(.94)}
+.d.ok{background:linear-gradient(160deg,var(--ice),var(--ice2));color:#03131e;border-color:transparent;box-shadow:0 0 12px rgba(127,211,255,.35)}
+.d.bad{background:linear-gradient(160deg,var(--blood),var(--blood2));color:#fff;border-color:transparent}
+.d.hoy{outline:2px solid var(--hoy);outline-offset:2px;color:var(--fg)}
+.d.fut{opacity:.22;cursor:default}
+.d.extra{border-style:dashed;border-color:#2a4558}
+.d:disabled{cursor:default}
+label{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin:14px 0 6px}
+select,textarea{
+  width:100%;font:inherit;font-size:.95rem;padding:11px;border-radius:10px;
+  border:1px solid var(--line);background:#050a0f;color:var(--fg)
+}
+select:focus,textarea:focus{outline:none;border-color:var(--ice2)}
+textarea{min-height:76px;resize:vertical}
+.btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+button.b{font:inherit;font-weight:700;font-size:.9rem;padding:11px 16px;border-radius:10px;border:0;cursor:pointer;color:#03131e;background:var(--ice)}
+button.ok{background:linear-gradient(160deg,var(--ice),var(--ice2));color:#03131e}
+button.bad{background:linear-gradient(160deg,var(--blood),var(--blood2));color:#fff}
+button.sec{background:transparent;color:var(--muted);border:1px solid var(--line)}
+#pan-fecha{font-size:.8rem;text-transform:uppercase;letter-spacing:.12em;color:var(--ice)}
+.reglas{font-size:.9rem;line-height:1.6;margin:8px 0 0;padding-left:18px;color:#b9cddb}
+.reglas li{margin-bottom:4px}
+.card > strong{font-size:.72rem;text-transform:uppercase;letter-spacing:.2em;color:var(--ice)}
+.nota{font-size:.75rem;color:var(--muted);line-height:1.5;text-align:center;margin-top:18px}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div class="brand">Winter Arc</div>
+    <div class="snow">10 oct 2026 → 17 ene 2027</div>
+  </div>
+  <h1>Reto de <span>100 días</span></h1>
+  <p class="sub">Cada día limpio suma un 1% de avance. Cada caída alarga el reto un día. Sin atajos, sin excusas.</p>
+
+  <section class="card">
+    <div class="stats">
+      <div><b id="st-dia">1</b><span>día</span></div>
+      <div><b id="st-racha">0</b><span>racha</span></div>
+      <div><b id="st-total">100</b><span>total</span></div>
+    </div>
+    <div class="bar" aria-label="progreso"><i id="barra"></i></div>
+    <p class="leyenda" id="prog"></p>
+  </section>
+
+  <section class="card">
+    <strong>Frase del día</strong>
+    <p class="frase" id="frase" style="margin-top:10px"></p>
+    <p class="autor" id="autor"></p>
+  </section>
+
+  <section class="card">
+    <div class="grid" id="grid"></div>
+    <p class="leyenda">Azul hielo: limpio · Rojo sangre: caída (suma un día) · Blanco: hoy · Discontinuo: días añadidos</p>
+  </section>
+
+  <section class="card" id="panel" hidden>
+    <strong id="pan-fecha"></strong>
+    <div class="btns">
+      <button class="b ok" id="btn-ok">Sin caer</button>
+      <button class="b bad" id="btn-bad">Caí</button>
+      <button class="b sec" id="btn-borrar">Borrar marca</button>
+    </div>
+    <div id="bloque-caida" hidden>
+      <label for="disp">¿Qué pasó justo antes?</label>
+      <select id="disp">
+        <option value="">Elige una opción</option>
+        <option>Después del entreno</option>
+        <option>Incógnito / edición en la habitación</option>
+        <option>Aburrimiento o mucho tiempo libre</option>
+        <option>Después de quedar con alguien</option>
+        <option>Otro</option>
+      </select>
+      <label for="cambio">¿Qué cambias mañana?</label>
+      <textarea id="cambio" maxlength="300"></textarea>
+      <div class="btns"><button class="b" id="btn-guardar">Guardar</button></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <strong>Reglas de hierro</strong>
+    <ul class="reglas">
+      <li>Editar sin modo incógnito.</li>
+      <li>Ante el calentón: nómbralo, sal de la habitación y haz una acción fija (ducha fría, caminar, llamar a alguien).</li>
+      <li>Después del entreno: ducha y una actividad ya decidida, lejos de la habitación.</li>
+      <li>Si caes, no te castigues: anótalo, elige el disparador y vuelve mañana.</li>
+    </ul>
+  </section>
+
+  <p class="nota">Los datos se guardan solo en este navegador. Si cambias de dispositivo o borras los datos del navegador, se pierden.</p>
+</main>
+
+<script>
+const INICIO = new Date(2026, 9, 10);
+const BASE = 100;
+const FRASES = [
+  {t:"No son las cosas las que nos perturban, sino la opinión que tenemos de ellas.", a:"Epicteto, Manual"},
+  {t:"Mientras aplazamos, la vida pasa.", a:"Séneca, Epístolas a Lucilio"},
+  {t:"No es que tengamos poco tiempo, sino que perdemos mucho.", a:"Séneca, De la brevedad de la vida"},
+  {t:"Lo que no es bueno para la colmena no es bueno para la abeja.", a:"Marco Aurelio, Meditaciones"},
+  {t:"Somos lo que hacemos repetidamente. La excelencia no es un acto, sino un hábito.", a:"Atribuida a Aristóteles (la forma exacta es una paráfrasis de Will Durant)"},
+  {t:"Cuando te levantes por la mañana, piensa en el privilegio que supone estar vivo.", a:"Marco Aurelio, Meditaciones (paráfrasis)"}
+];
+const KEY = "reto100-v1";
+let estado = {};
+try { estado = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e) { estado = {}; }
+let marcas = estado.marcas || {};
+let seleccion = null;
+
+function iso(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function sumar(d,n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+function hoyDate(){ const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
+function guardar(){ try { localStorage.setItem(KEY, JSON.stringify({marcas})); } catch(e) {} }
+function caidas(){ return Object.values(marcas).filter(m => m.s === "bad").length; }
+function total(){ return BASE + caidas(); }
+
+function render(){
+  const hoy = hoyDate();
+  const T = total();
+  const dias = [];
+  for (let i=0;i<T;i++) dias.push(sumar(INICIO,i));
+  const idxHoy = Math.max(0, Math.min(T-1, Math.round((hoy-INICIO)/86400000)));
+
+  let limpios = 0, racha = 0;
+  for (let i=0;i<T;i++){ const m = marcas[iso(dias[i])]; if (m && m.s === "ok") limpios++; }
+  for (let i=idxHoy;i>=0;i--){
+    const m = marcas[iso(dias[i])];
+    if (m && m.s === "ok") racha++;
+    else if (m && m.s === "bad") break;
+    else if (i === idxHoy) continue;
+    else break;
+  }
+
+  document.getElementById("st-dia").textContent = idxHoy+1;
+  document.getElementById("st-racha").textContent = racha;
+  document.getElementById("st-total").textContent = T;
+  const pct = Math.round(limpios/T*100);
+  document.getElementById("barra").style.width = pct+"%";
+  document.getElementById("prog").textContent = limpios+" días limpios de "+T+" · "+pct+"%";
+
+  const f = FRASES[idxHoy % FRASES.length];
+  document.getElementById("frase").textContent = "« "+f.t+" »";
+  document.getElementById("autor").textContent = "— "+f.a;
+
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  dias.forEach((d,i)=>{
+    const k = iso(d);
+    const m = marcas[k];
+    const b = document.createElement("button");
+    b.className = "d";
+    if (i >= BASE) b.classList.add("extra");
+    if (m && m.s === "ok") b.classList.add("ok");
+    if (m && m.s === "bad") b.classList.add("bad");
+    if (i === idxHoy) b.classList.add("hoy");
+    if (d > hoy) { b.classList.add("fut"); b.disabled = true; }
+    b.textContent = i+1;
+    b.title = d.toLocaleDateString("es-ES");
+    b.onclick = ()=>{ seleccion = k; abrirPanel(d, m); };
+    grid.appendChild(b);
+  });
+}
+
+function abrirPanel(d, m){
+  document.getElementById("panel").hidden = false;
+  document.getElementById("pan-fecha").textContent = "Día "+(Math.round((d-INICIO)/86400000)+1)+" · "+d.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});
+  document.getElementById("bloque-caida").hidden = !(m && m.s === "bad");
+  document.getElementById("disp").value = (m && m.t) || "";
+  document.getElementById("cambio").value = (m && m.n) || "";
+  document.getElementById("panel").scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+
+function marcar(s){
+  if (!seleccion) return;
+  if (s === "ok") marcas[seleccion] = {s:"ok"};
+  if (s === "bad") marcas[seleccion] = {s:"bad", t:"", n:""};
+  guardar(); render();
+  abrirPanel(new Date(seleccion+"T00:00:00"), marcas[seleccion]);
+}
+
+document.getElementById("btn-ok").onclick = ()=>marcar("ok");
+document.getElementById("btn-bad").onclick = ()=>marcar("bad");
+document.getElementById("btn-borrar").onclick = ()=>{
+  if (!seleccion) return;
+  delete marcas[seleccion];
+  guardar(); render();
+  document.getElementById("panel").hidden = true;
+};
+document.getElementById("btn-guardar").onclick = ()=>{
+  if (!seleccion || !marcas[seleccion]) return;
+  marcas[seleccion].t = document.getElementById("disp").value;
+  marcas[seleccion].n = document.getElementById("cambio").value.trim();
+  guardar(); render();
+  document.getElementById("panel").hidden = true;
+};
+
+render();
+</script>
+<script>if ("serviceWorker" in navigator) { navigator.serviceWorker.register("sw.js").catch(()=>{}); }</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "Winter Arc · Reto 100 días",
+  "short_name": "Winter Arc",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#070b10",
+  "theme_color": "#070b10",
+  "lang": "es",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
